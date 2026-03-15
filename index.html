@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>After The Peak</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a1a;--bg2:#080f24;--gold:#c9a84c;--gold-light:#e8c96e;--gold-dim:#7a6030;--blue-bright:#2a5cb8;--blue-glow:#4d7fff;--text:#e8e8f0;--text-muted:#6a7490;--text-dim:#3a4460;--border:#1a2448;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(5,10,26,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--gold);cursor:pointer;}
+.nav-right{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+.hero{position:relative;padding:120px 48px 56px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 80% 50%,rgba(26,58,110,.25) 0%,transparent 70%),radial-gradient(ellipse 30% 60% at 10% 80%,rgba(201,168,76,.06) 0%,transparent 60%);pointer-events:none;}
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:4px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:20px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,8vw,7rem);line-height:.95;letter-spacing:2px;}
+.hero-title span{color:var(--gold);}
+.hero-line{width:60px;height:1px;background:var(--gold-dim);margin:24px 0;}
+.hero-sub{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text-muted);letter-spacing:2px;max-width:420px;}
+.stats-bar{display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:0 48px 48px;}
+.stat-item{flex:1;padding:24px 32px;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--gold);letter-spacing:2px;line-height:1;}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.search-section{padding:0 48px 24px;}
+.search-wrap{position:relative;max-width:360px;}
+.search-input{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem;padding:12px 16px 12px 40px;outline:none;letter-spacing:1px;transition:border-color .2s;}
+.search-input:focus{border-color:var(--gold-dim);}
+.search-input::placeholder{color:var(--text-dim);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:.75rem;}
+.filter-bar{padding:0 48px 32px;display:flex;gap:8px;flex-wrap:wrap;}
+.filter-btn{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;transition:all .2s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--gold-dim);color:var(--gold);background:rgba(201,168,76,.05);}
+.players-section{padding:0 48px 80px;}
+.players-table{width:100%;border-collapse:collapse;}
+.players-table thead tr{border-bottom:1px solid var(--border);}
+.players-table th{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);padding:12px 16px;text-align:left;font-weight:400;}
+.players-table tbody tr{border-bottom:1px solid rgba(26,36,72,.5);cursor:pointer;transition:background .15s;}
+.players-table tbody tr:hover{background:rgba(201,168,76,.04);}
+.players-table td{padding:18px 16px;vertical-align:middle;}
+.player-num{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-dim);width:40px;}
+.player-name-cell{font-size:1rem;font-weight:700;}
+.player-pos{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-muted);letter-spacing:1px;}
+.player-peak,.player-current{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);}
+.status-active{color:#4dffaa;}
+.status-retired{color:var(--text-dim);}
+.status-tag{display:inline-block;font-size:.55rem;letter-spacing:2px;padding:2px 8px;margin-left:8px;text-transform:uppercase;}
+.status-tag.active{background:rgba(77,255,170,.08);color:#4dffaa;border:1px solid rgba(77,255,170,.2);}
+.status-tag.retired{background:rgba(106,116,144,.1);color:var(--text-dim);border:1px solid var(--border);}
+.moves-count{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold-dim);}
+.arrow-cell{color:var(--text-dim);font-size:.7rem;text-align:right;transition:color .2s;}
+tr:hover .arrow-cell{color:var(--gold);}
+.overlay{display:none;position:fixed;inset:0;background:rgba(2,5,15,.93);z-index:200;backdrop-filter:blur(6px);overflow-y:auto;}
+.overlay.open{display:block;}
+.player-modal{max-width:1100px;margin:48px auto;padding:0 24px 80px;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.modal-back{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.65rem;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;cursor:pointer;margin-bottom:40px;padding:8px 0;transition:color .2s;background:none;border:none;}
+.modal-back:hover{color:var(--gold);}
+.player-header{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;margin-bottom:48px;padding-bottom:40px;border-bottom:1px solid var(--border);}
+.player-header-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,6vw,5.5rem);line-height:.9;letter-spacing:2px;margin-bottom:12px;}
+.player-header-meta{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:16px;}
+.meta-item{display:flex;flex-direction:column;gap:2px;}
+.meta-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase;}
+.meta-value{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--text-muted);}
+.player-legend-note{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--gold-dim);line-height:1.6;max-width:540px;border-left:2px solid var(--gold-dim);padding-left:16px;}
+.player-header-stats{display:flex;flex-direction:column;gap:16px;min-width:180px;}
+.header-stat{text-align:right;}
+.header-stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);line-height:1;}
+.header-stat-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:4px;color:var(--text-dim);text-transform:uppercase;margin-bottom:20px;}
+.graph-section{margin-bottom:60px;}
+.graph-legend{display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-muted);letter-spacing:1px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.legend-dot.prime{background:var(--blue-bright);}
+.legend-dot.move{background:var(--gold);}
+.legend-dot.record{background:#f5a623;box-shadow:0 0 6px rgba(245,166,35,.8);}
+.graph-scroll{overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.graph-scroll::-webkit-scrollbar{height:4px;}
+.graph-scroll::-webkit-scrollbar-thumb{background:var(--border);}
+.graph-tooltip{position:fixed;z-index:9999;pointer-events:none;background:var(--bg2);border:1px solid var(--border);padding:14px 16px;min-width:240px;max-width:320px;opacity:0;transition:opacity .15s;box-shadow:0 8px 32px rgba(0,0,0,.7);}
+.graph-tooltip.record-tt{border-color:#f5a623;border-width:1px;background:#07060f;box-shadow:0 8px 40px rgba(245,166,35,0.2);}
+.graph-tooltip.visible{opacity:1;}
+.tt-rec-banner{font-family:'Bebas Neue',sans-serif;font-size:.75rem;color:#f5a623;letter-spacing:2.5px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(245,166,35,0.25);text-align:center;}
+.tt-rec-reason{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#f5a623;line-height:1.5;margin-bottom:10px;font-style:italic;}
+.tt-transfer-arrow{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px;}
+.tt-from,.tt-to{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text);flex:1;}
+.tt-to{text-align:right;}
+.tt-from-reg,.tt-to-reg{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);flex:1;}
+.tt-to-reg{text-align:right;}
+.tt-arrow-icon{color:#f5a623;font-size:1rem;flex-shrink:0;}
+.tt-arrow-reg{color:var(--gold-dim);font-size:1rem;flex-shrink:0;}
+.tt-fee-big{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:#f5a623;letter-spacing:2px;line-height:1;margin-bottom:2px;}
+.tt-fee-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;color:#7a6030;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.tt-latest-label{font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:3px;color:var(--gold-dim);text-transform:uppercase;margin-bottom:8px;}
+.tt-club{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--text);letter-spacing:1px;margin-bottom:2px;}
+.tt-date{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-dim);margin-bottom:8px;}
+.tt-row{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-muted);margin-top:5px;display:flex;justify-content:space-between;gap:12px;}
+.tt-row span:last-child{color:var(--text);text-align:right;}
+.tt-desc{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-dim);line-height:1.55;margin-top:10px;border-top:1px solid rgba(245,166,35,0.2);padding-top:8px;}
+.summary-section{border-top:1px solid var(--border);padding-top:40px;}
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-top:24px;}
+.summary-item{background:var(--bg2);padding:28px 24px;}
+.summary-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);line-height:1;margin-bottom:4px;}
+.summary-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;}
+@media(max-width:768px){
+  nav{padding:0 20px;}
+  .hero{padding:96px 20px 40px;}
+  .stats-bar{margin:0 20px 32px;flex-wrap:wrap;}
+  .stat-item{min-width:50%;border-right:none;border-bottom:1px solid var(--border);padding:16px 20px;}
+  .search-section,.filter-bar,.players-section{padding-left:20px;padding-right:20px;}
+  .player-modal{padding:0 16px 60px;}
+  .player-header{grid-template-columns:1fr;}
+  .player-header-stats{flex-direction:row;}
+  .summary-grid{grid-template-columns:1fr;}
+  .players-table th:nth-child(4),.players-table td:nth-child(4),
+  .players-table th:nth-child(5),.players-table td:nth-child(5){display:none;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nav-logo" onclick="closePlayer()">AFTER THE PEAK</span>
+  <span class="nav-right">Post-Prime Tracker</span>
+</nav>
+<div id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-label">// Football Legends Tracker</div>
+    <h1 class="hero-title">After<br><span>The Peak</span></h1>
+    <div class="hero-line"></div>
+    <p class="hero-sub">Where the greats went when the prime was over. Every move. Every contract. Every number.</p>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-num" id="stat-players">-</div><div class="stat-label">Legends Tracked</div></div>
+    <div class="stat-item"><div class="stat-num" id="stat-moves">-</div><div class="stat-label">Post-Prime Moves</div></div>
+    <div class="stat-item"><div class="stat-num" id="stat-clubs">-</div><div class="stat-label">Clubs Featured</div></div>
+    <div class="stat-item"><div class="stat-num" id="stat-records">-</div><div class="stat-label">Record Transfers</div></div>
+  </div>
+  <div class="search-section">
+    <div class="search-wrap">
+      <span class="search-icon">&#9906;</span>
+      <input class="search-input" id="search-input" type="text" placeholder="Search player..." oninput="renderTable()">
+    </div>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('Forward',this)">Forwards</button>
+    <button class="filter-btn" onclick="setFilter('Midfielder',this)">Midfielders</button>
+    <button class="filter-btn" onclick="setFilter('Defender',this)">Defenders</button>
+    <button class="filter-btn" onclick="setFilter('active',this)">Still Active</button>
+    <button class="filter-btn" onclick="setFilter('retired',this)">Retired</button>
+  </div>
+  <div class="players-section">
+    <table class="players-table">
+      <thead><tr>
+        <th>#</th><th>Player</th><th>Position</th><th>Peak Club</th><th>Now / Last</th><th>Moves</th><th></th>
+      </tr></thead>
+      <tbody id="players-tbody"></tbody>
+    </table>
+  </div>
+</div>
+<div class="overlay" id="player-overlay">
+  <div class="player-modal" id="player-modal-content"></div>
+</div>
+<div class="graph-tooltip" id="graph-tooltip"><div id="tt-inner"></div></div>
+<script>
+var RECORDS=[
+  {slug:"neymar",moveClub:"Paris Saint-Germain",from:"FC Barcelona",to:"Paris Saint-Germain",fee:"€222,000,000",
+   reason:"Most expensive transfer in football history — ever.",
+   desc:"Shattered the previous world record of €105M set by Paul Pogba just one year earlier. Still the highest transfer fee paid for any player in the history of the sport."},
+  {slug:"ronaldo",moveClub:"Juventus",from:"Real Madrid",to:"Juventus",fee:"€100,000,000",
+   reason:"Record fee ever paid for a player aged 33. Most expensive transfer in Serie A history.",
+   desc:"No club had ever paid €100M+ for a player over 30. Broke the Serie A transfer record by over €50M and proved age was no barrier to a world-class fee."},
+  {slug:"kante",moveClub:"Al Ittihad",from:"Chelsea FC",to:"Al Ittihad",fee:"€100,000,000",
+   reason:"Record fee ever paid for a defensive midfielder. Highest Saudi Pro League signing of the 2023 summer.",
+   desc:"Part of Saudi Arabia's unprecedented 2023 transfer spree. No holding midfielder had ever commanded a nine-figure fee before this move."}
+];
+var players=[
+  {name:"Lionel Messi",slug:"messi",nationality:"Argentina",position:"Forward",status:"active",prime:{club:"FC Barcelona",start:2004,end:2021},legendNote:"8 Ballon d Or awards. All-time La Liga top scorer. 4 Champions League titles. Greatest of all time.",moves:[
+    {club:"Paris Saint-Germain",date:"Aug 2021",type:"transfer",fee:"Free",salary:"EUR 1,000,000/wk",bonus:"EUR 25,000,000",contract:"2 years",numSigning:30,numCurrent:null},
+    {club:"Inter Miami CF",date:"Jul 2023",type:"transfer",fee:"Free",salary:"USD 50,000,000/yr",bonus:"Undisclosed",contract:"2.5 years",numSigning:10,numCurrent:10}
+  ]},
+  {name:"Cristiano Ronaldo",slug:"ronaldo",nationality:"Portugal",position:"Forward",status:"active",prime:{club:"Real Madrid",start:2009,end:2018},legendNote:"5 Ballon d Or awards. All-time Champions League top scorer. Record international goals. 5 league titles across 3 countries.",moves:[
+    {club:"Juventus",date:"Jul 2018",type:"transfer",fee:"EUR 100,000,000",salary:"EUR 31,000,000/yr",bonus:"EUR 19,500,000",contract:"4 years",numSigning:7,numCurrent:null},
+    {club:"Manchester United",date:"Aug 2021",type:"transfer",fee:"EUR 15,000,000",salary:"GBP 385,000/wk",bonus:"Undisclosed",contract:"2 years",numSigning:7,numCurrent:null},
+    {club:"Al Nassr",date:"Jan 2023",type:"transfer",fee:"Free",salary:"EUR 200,000,000/yr",bonus:"Undisclosed",contract:"2.5 years",numSigning:7,numCurrent:7}
+  ]},
+  {name:"Neymar Jr",slug:"neymar",nationality:"Brazil",position:"Forward",status:"active",prime:{club:"FC Barcelona",start:2013,end:2017},legendNote:"Brazil all-time top scorer. 2015 Champions League winner. Record EUR 222M transfer fee. 3 La Liga titles.",moves:[
+    {club:"Paris Saint-Germain",date:"Aug 2017",type:"transfer",fee:"EUR 222,000,000",salary:"EUR 36,800,000/yr",bonus:"Undisclosed",contract:"5 years",numSigning:10,numCurrent:null},
+    {club:"Al Hilal",date:"Aug 2023",type:"transfer",fee:"EUR 90,000,000",salary:"EUR 100,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:10,numCurrent:10}
+  ]},
+  {name:"Luka Modric",slug:"modric",nationality:"Croatia",position:"Midfielder",status:"active",prime:{club:"Real Madrid",start:2012,end:2022},legendNote:"2018 Ballon d Or winner. 6 Champions League titles. Led Croatia to 2018 World Cup final. Ended Messi-Ronaldo era dominance.",moves:[
+    {club:"Real Madrid ext.",date:"Jun 2022",type:"transfer",fee:"Free",salary:"EUR 15,000,000/yr",bonus:"Undisclosed",contract:"1 year",numSigning:10,numCurrent:null},
+    {club:"Real Madrid ext.",date:"Jun 2023",type:"transfer",fee:"Free",salary:"EUR 12,000,000/yr",bonus:"Undisclosed",contract:"1 year",numSigning:10,numCurrent:null},
+    {club:"Al Qadsiah",date:"Jul 2024",type:"transfer",fee:"Free",salary:"EUR 30,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:10,numCurrent:10}
+  ]},
+  {name:"Karim Benzema",slug:"benzema",nationality:"France",position:"Forward",status:"active",prime:{club:"Real Madrid",start:2009,end:2023},legendNote:"2022 Ballon d Or. 5 Champions League titles. 354 goals for Real Madrid. All-time second top scorer for the club.",moves:[
+    {club:"Al Ittihad",date:"Jun 2023",type:"transfer",fee:"Free",salary:"EUR 200,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:9,numCurrent:9}
+  ]},
+  {name:"Thiago Silva",slug:"thiago-silva",nationality:"Brazil",position:"Defender",status:"active",prime:{club:"PSG",start:2012,end:2020},legendNote:"2021 Champions League winner with Chelsea. Captained PSG for 8 years. One of the greatest Brazilian defenders ever.",moves:[
+    {club:"Chelsea FC",date:"Sep 2020",type:"transfer",fee:"Free",salary:"GBP 100,000/wk",bonus:"Undisclosed",contract:"1 year",numSigning:6,numCurrent:null},
+    {club:"Chelsea FC ext.",date:"Jun 2021",type:"transfer",fee:"Free",salary:"GBP 120,000/wk",bonus:"Undisclosed",contract:"2 years",numSigning:6,numCurrent:null},
+    {club:"Fluminense",date:"Jan 2024",type:"transfer",fee:"Free",salary:"Undisclosed",bonus:"Undisclosed",contract:"1 year",numSigning:2,numCurrent:2}
+  ]},
+  {name:"David Silva",slug:"david-silva",nationality:"Spain",position:"Midfielder",status:"retired",prime:{club:"Manchester City",start:2010,end:2020},legendNote:"4 Premier League titles. 2010 World Cup and 2x Euros winner. One of City greatest ever players across a decade.",moves:[
+    {club:"Real Sociedad",date:"Sep 2020",type:"transfer",fee:"Free",salary:"EUR 6,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:21,numCurrent:null},
+    {club:"Real Sociedad ext.",date:"Jun 2022",type:"transfer",fee:"Free",salary:"EUR 4,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:21,numCurrent:null}
+  ]},
+  {name:"Sadio Mane",slug:"mane",nationality:"Senegal",position:"Forward",status:"active",prime:{club:"Liverpool FC",start:2016,end:2022},legendNote:"2019 Champions League winner. 2022 Africa Cup of Nations with Senegal. One of the best forwards of his generation.",moves:[
+    {club:"Bayern Munich",date:"Jun 2022",type:"transfer",fee:"EUR 32,000,000",salary:"EUR 20,000,000/yr",bonus:"Undisclosed",contract:"3 years",numSigning:17,numCurrent:null},
+    {club:"Al Nassr",date:"Aug 2023",type:"transfer",fee:"EUR 35,000,000",salary:"EUR 40,000,000/yr",bonus:"Undisclosed",contract:"3 years",numSigning:10,numCurrent:10}
+  ]},
+  {name:"NGolo Kante",slug:"kante",nationality:"France",position:"Midfielder",status:"active",prime:{club:"Chelsea FC",start:2016,end:2023},legendNote:"2018 World Cup winner. 2021 Champions League winner. The most complete defensive midfielder of his era.",moves:[
+    {club:"Al Ittihad",date:"Jul 2023",type:"transfer",fee:"EUR 100,000,000",salary:"EUR 25,000,000/yr",bonus:"Undisclosed",contract:"3 years",numSigning:7,numCurrent:7}
+  ]},
+  {name:"Antoine Griezmann",slug:"griezmann",nationality:"France",position:"Forward",status:"active",prime:{club:"Atletico Madrid",start:2014,end:2023},legendNote:"2018 World Cup winner with France. 2021 Europa League winner. One of the most consistent strikers in La Liga history.",moves:[
+    {club:"FC Barcelona",date:"Jul 2019",type:"transfer",fee:"EUR 120,000,000",salary:"EUR 21,000,000/yr",bonus:"Undisclosed",contract:"5 years",numSigning:7,numCurrent:null},
+    {club:"Atletico Madrid loan",date:"Aug 2021",type:"loan",fee:"Loan",salary:"EUR 16,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:8,numCurrent:null},
+    {club:"Atletico Madrid",date:"Jun 2023",type:"transfer",fee:"EUR 20,000,000",salary:"EUR 10,000,000/yr",bonus:"Undisclosed",contract:"2 years",numSigning:7,numCurrent:7}
+  ]},
+  {name:"Giorgio Chiellini",slug:"chiellini",nationality:"Italy",position:"Defender",status:"retired",prime:{club:"Juventus",start:2005,end:2022},legendNote:"2021 Euros winner with Italy. 9 Serie A titles. Most feared centre-back in Europe for a decade. Juventus captain for 7 years.",moves:[
+    {club:"Los Angeles FC",date:"Jul 2022",type:"transfer",fee:"Free",salary:"USD 1,500,000/yr",bonus:"Undisclosed",contract:"1 year",numSigning:3,numCurrent:null}
+  ]}
+];
+
+var activeFilter="all";
+function setFilter(f,btn){activeFilter=f;document.querySelectorAll(".filter-btn").forEach(function(b){b.classList.remove("active");});btn.classList.add("active");renderTable();}
+function computeStats(){
+  var tm=players.reduce(function(s,p){return s+p.moves.length;},0);
+  var ac=new Set();players.forEach(function(p){ac.add(p.prime.club);p.moves.forEach(function(m){ac.add(m.club);});});
+  document.getElementById("stat-players").textContent=players.length;
+  document.getElementById("stat-moves").textContent=tm;
+  document.getElementById("stat-clubs").textContent=ac.size;
+  document.getElementById("stat-records").textContent=RECORDS.length;
+}
+function renderTable(){
+  var q=document.getElementById("search-input").value.toLowerCase();
+  var list=players.filter(function(p){
+    var ms=p.name.toLowerCase().indexOf(q)>=0;
+    var mf=true;
+    if(activeFilter==="active")mf=p.status==="active";
+    else if(activeFilter==="retired")mf=p.status==="retired";
+    else if(activeFilter!=="all")mf=p.position.indexOf(activeFilter)>=0;
+    return ms&&mf;
+  });
+  document.getElementById("players-tbody").innerHTML=list.map(function(p,i){
+    var last=p.moves[p.moves.length-1];
+    var cur=last?last.club:p.prime.club;
+    return "<tr onclick=\"openPlayer('"+p.slug+"')\"><td class=\"player-num\">"+String(i+1).padStart(2,"0")+"</td><td class=\"player-name-cell\">"+p.name+"</td><td class=\"player-pos\">"+p.position.toUpperCase()+"</td><td class=\"player-peak\">"+p.prime.club+"</td><td class=\"player-current\"><span class=\""+(p.status==="active"?"status-active":"status-retired")+"\">"+cur+"</span><span class=\"status-tag "+p.status+"\">"+(p.status==="active"?"Active":"Retired")+"</span></td><td class=\"moves-count\">"+p.moves.length+" move"+(p.moves.length!==1?"s":"")+"</td><td class=\"arrow-cell\">&#8594;</td></tr>";
+  }).join("");
+}
+
+function buildGraph(p){
+  var moveYears=p.moves.map(function(m){return parseInt(m.date.split(" ").pop());});
+  var allY=[p.prime.start,p.prime.end].concat(moveYears);
+  var minY=Math.min.apply(null,allY)-1;
+  var maxY=Math.max.apply(null,allY)+2;
+  var span=maxY-minY;
+  var PL=84,PR=48,PT=72,PB=52,COL=76;
+  var W=PL+span*COL+PR,H=300;
+  var PRIMY=PT+16,POSTY=H-PB-16,MIDY=PRIMY+(POSTY-PRIMY)*0.5;
+  function xOf(yr){return PL+(yr-minY)*COL;}
+
+  // grid
+  var grid="";
+  for(var y=minY+1;y<=maxY;y++){
+    var x=xOf(y);
+    grid+="<line x1='"+x+"' y1='"+PT+"' x2='"+x+"' y2='"+(H-PB)+"' stroke='#111830' stroke-width='1'/>";
+    if(y%2===0||span<12)grid+="<text x='"+x+"' y='"+(H-PB+16)+"' text-anchor='middle' fill='#2a3356' font-family='JetBrains Mono' font-size='10'>"+y+"</text>";
+  }
+  var guides=[PRIMY,MIDY,POSTY].map(function(gy){return "<line x1='"+PL+"' y1='"+gy+"' x2='"+(W-PR)+"' y2='"+gy+"' stroke='#1a2448' stroke-width='1' stroke-dasharray='3,7'/>";}).join("");
+  var ylab="<text x='"+(PL-8)+"' y='"+(PRIMY+4)+"' text-anchor='end' fill='#2a5cb8' font-family='JetBrains Mono' font-size='9.5' letter-spacing='1'>PRIME</text><text x='"+(PL-8)+"' y='"+(MIDY+4)+"' text-anchor='end' fill='#2a3356' font-family='JetBrains Mono' font-size='9.5'>MID</text><text x='"+(PL-8)+"' y='"+(POSTY+4)+"' text-anchor='end' fill='#7a6030' font-family='JetBrains Mono' font-size='9.5' letter-spacing='1'>POST</text>";
+
+  // prime band — label goes BELOW the line now, not sitting on it
+  var px1=xOf(p.prime.start),px2=xOf(p.prime.end);
+  var clubLabel=p.prime.club.length>16?p.prime.club.substring(0,15)+".":p.prime.club;
+  var band="<rect x='"+px1+"' y='"+PT+"' width='"+(px2-px1)+"' height='"+(H-PT-PB)+"' fill='rgba(26,58,110,0.08)'/>"
+    +"<text x='"+((px1+px2)/2)+"' y='"+(PRIMY+22)+"' text-anchor='middle' fill='#6a8fc0' font-family='Bebas Neue' font-size='11' letter-spacing='1.5'>"+clubLabel+"</text>"
+    +"<text x='"+((px1+px2)/2)+"' y='"+(PRIMY+34)+"' text-anchor='middle' fill='#3a5070' font-family='JetBrains Mono' font-size='8'>"+p.prime.start+"–"+p.prime.end+"</text>";
+
+  // build coordinate list: [prime start, prime end, move0, move1, ...]
+  var coords=[];
+  coords.push({x:xOf(p.prime.start), y:PRIMY, type:'prime-start', club:p.prime.club});
+  coords.push({x:xOf(p.prime.end),   y:PRIMY, type:'prime-end',   club:p.prime.club});
+  moveYears.forEach(function(yr,i){
+    var frac=p.moves.length>1?i/(p.moves.length-1):0.5;
+    var cy=PRIMY+(POSTY-PRIMY)*(0.25+frac*0.75);
+    coords.push({x:xOf(yr), y:cy, type:'move', move:p.moves[i], idx:i});
+  });
+
+  // draw visible polyline
+  var pts=coords.map(function(c){return c.x+","+c.y;}).join(" ");
+  var defs="<defs><linearGradient id='lg' x1='0%' y1='0%' x2='100%' y2='0%'><stop offset='0%' stop-color='#2a5cb8'/><stop offset='45%' stop-color='#c9a84c'/><stop offset='100%' stop-color='#e8c96e'/></linearGradient></defs>";
+  var polyline="<polyline points='"+pts+"' fill='none' stroke='url(#lg)' stroke-width='2.5' stroke-linejoin='round' stroke-linecap='round'/>";
+
+  // hoverable line segments — every segment gets a hit area
+  var segments="";
+  var primeAttr="onmouseenter=\"showPrimeTT(event,'"+p.prime.club.replace(/'/g,"&#39;")+"','"+p.prime.start+"','"+p.prime.end+"')\" onmousemove=\"moveTT(event)\" onmouseleave=\"hideTT()\"";
+  // prime segment (prime start → prime end)
+  segments+="<line x1='"+coords[0].x+"' y1='"+coords[0].y+"' x2='"+coords[1].x+"' y2='"+coords[1].y+"' stroke='transparent' stroke-width='18' style='cursor:pointer' "+primeAttr+"/>";
+
+  for(var si=1;si<coords.length;si++){
+    var ca=coords[si-1], cb=coords[si];
+    if(cb.type!=='move') continue;
+    var m=cb.move;
+    var fromClub=ca.type==='move'?ca.move.club:p.prime.club;
+    var rec=null;
+    for(var r=0;r<RECORDS.length;r++){if(RECORDS[r].slug===p.slug&&RECORDS[r].moveClub===m.club){rec=RECORDS[r];break;}}
+    var efc=fromClub.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var ec=m.club.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var ef=m.fee.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var es=m.salary.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var isLast=(cb.idx===p.moves.length-1);
+    var sattr="onmouseenter=\"showTT(event,'"+ec+"','"+m.date+"','"+m.type+"','"+ef+"','"+es+"','"+m.contract+"','"+p.slug+"','"+ec+"','"+efc+"',"+(isLast?"true":"false")+")\" onmousemove=\"moveTT(event)\" onmouseleave=\"hideTT()\"";
+    if(rec){
+      // RBT: glowing dashed orange line + midpoint label
+      segments+="<line x1='"+ca.x+"' y1='"+ca.y+"' x2='"+cb.x+"' y2='"+cb.y+"' stroke='#f5a623' stroke-width='3' stroke-opacity='0.85' stroke-dasharray='6,4' style='filter:drop-shadow(0 0 4px rgba(245,166,35,0.8))'/>";
+      var mx2=(ca.x+cb.x)/2, my2=(ca.y+cb.y)/2;
+      segments+="<text x='"+mx2+"' y='"+(my2-10)+"' text-anchor='middle' fill='#f5a623' font-family='JetBrains Mono' font-size='7' letter-spacing='2' style='pointer-events:none'>RECORD BREAKING</text>";
+    }
+    // invisible thick hit area for every segment
+    segments+="<line x1='"+ca.x+"' y1='"+ca.y+"' x2='"+cb.x+"' y2='"+cb.y+"' stroke='transparent' stroke-width='18' style='cursor:pointer' "+sattr+"/>";
+  }
+
+  // dots — RBT bright orange-amber, latest gold, past moves muted
+  var dots="";
+  var lastIdx=p.moves.length-1;
+  moveYears.forEach(function(yr,i){
+    var frac=p.moves.length>1?i/(p.moves.length-1):0.5;
+    var dy=PRIMY+(POSTY-PRIMY)*(0.25+frac*0.75);
+    var mx=xOf(yr);
+    var m=p.moves[i];
+    var isLast=(i===lastIdx);
+    var fromClub=i===0?p.prime.club:p.moves[i-1].club;
+    var rec=null;
+    for(var r=0;r<RECORDS.length;r++){if(RECORDS[r].slug===p.slug&&RECORDS[r].moveClub===m.club){rec=RECORDS[r];break;}}
+    var ec=m.club.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var ef=m.fee.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var es=m.salary.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var efc=fromClub.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    var attr="onmouseenter=\"showTT(event,'"+ec+"','"+m.date+"','"+m.type+"','"+ef+"','"+es+"','"+m.contract+"','"+p.slug+"','"+ec+"','"+efc+"',"+(isLast?"true":"false")+")\" onmousemove=\"moveTT(event)\" onmouseleave=\"hideTT()\" style='cursor:pointer'";
+    var dotColor=rec?"#f5a623":(isLast?"#c9a84c":"#3d4a6a");
+    var dotRadius=rec?8:(isLast?6:4);
+    var dotGlow=rec?"drop-shadow(0 0 10px rgba(245,166,35,1))":(isLast?"drop-shadow(0 0 5px rgba(201,168,76,0.6))":"none");
+    var sc=m.club.length>13?m.club.substring(0,12)+"..":m.club;
+    var labelColor=rec?"#f5a623":(isLast?"#e8c96e":"#8090b0");
+    var dateColor=rec?"#c9843a":(isLast?"#8a7040":"#3a4870");
+    // outer glow rings for RBT dot
+    if(rec){
+      dots+="<circle cx='"+mx+"' cy='"+dy+"' r='15' fill='none' stroke='#f5a623' stroke-width='1' stroke-opacity='0.15'/>";
+      dots+="<circle cx='"+mx+"' cy='"+dy+"' r='11' fill='none' stroke='#f5a623' stroke-width='1' stroke-opacity='0.3'/>";
+    }
+    dots+="<circle cx='"+mx+"' cy='"+dy+"' r='"+dotRadius+"' fill='"+dotColor+"' stroke='#050a1a' stroke-width='2' style='filter:"+dotGlow+"' "+attr+"/>";
+    if(isLast&&!rec) dots+="<circle cx='"+mx+"' cy='"+dy+"' r='10' fill='none' stroke='#c9a84c' stroke-width='1' stroke-opacity='0.3'/>";
+    dots+="<text x='"+mx+"' y='"+(dy+22)+"' text-anchor='middle' fill='"+labelColor+"' font-family='JetBrains Mono' font-size='9' style='pointer-events:none'>"+sc+"</text>";
+    dots+="<text x='"+mx+"' y='"+(dy+33)+"' text-anchor='middle' fill='"+dateColor+"' font-family='JetBrains Mono' font-size='8' style='pointer-events:none'>"+m.date+"</text>";
+  });
+
+  var pdots="<circle cx='"+xOf(p.prime.start)+"' cy='"+PRIMY+"' r='5' fill='#2a5cb8' style='filter:drop-shadow(0 0 5px rgba(42,92,184,.7))'/><circle cx='"+xOf(p.prime.end)+"' cy='"+PRIMY+"' r='5' fill='#2a5cb8' style='filter:drop-shadow(0 0 5px rgba(42,92,184,.7))'/><text x='"+xOf(p.prime.start)+"' y='"+(PRIMY-12)+"' text-anchor='middle' fill='#2a4070' font-family='JetBrains Mono' font-size='9'>"+p.prime.start+"</text><text x='"+xOf(p.prime.end)+"' y='"+(PRIMY-12)+"' text-anchor='middle' fill='#2a4070' font-family='JetBrains Mono' font-size='9'>"+p.prime.end+"</text>";
+
+  return "<svg width='"+W+"' height='"+H+"' viewBox='0 0 "+W+" "+H+"' style='min-width:"+W+"px;display:block;background:rgba(8,15,36,0.5);'>"+defs+grid+guides+band+polyline+segments+dots+pdots+ylab+"</svg>";
+}
+
+function showTT(e,club,date,type,fee,salary,contract,pSlug,moveClub,fromClub,isLatest){
+  var tip=document.getElementById("graph-tooltip");
+  var inner=document.getElementById("tt-inner");
+  var rec=null;for(var r=0;r<RECORDS.length;r++){if(RECORDS[r].slug===pSlug&&RECORDS[r].moveClub===moveClub){rec=RECORDS[r];break;}}
+  var html="";
+  if(rec){
+    tip.classList.add("record-tt");
+    html+="<div class='tt-rec-banner'>&#9733; RECORD BREAKING TRANSFER &#9733;</div>";
+    html+="<div class='tt-rec-reason'>"+rec.reason+"</div>";
+    html+="<div class='tt-transfer-arrow'><span class='tt-from'>"+rec.from+"</span><span class='tt-arrow-icon'>&#8594;</span><span class='tt-to'>"+rec.to+"</span></div>";
+    html+="<div class='tt-date'>"+date+"</div>";
+    html+="<div class='tt-fee-big'>"+rec.fee+"</div>";
+    html+="<div class='tt-fee-label'>Transfer Fee</div>";
+    html+="<div class='tt-desc'>"+rec.desc+"</div>";
+  } else {
+    tip.classList.remove("record-tt");
+    if(isLatest) html+="<div class='tt-latest-label'>LATEST MOVE</div>";
+    html+="<div class='tt-transfer-arrow'><span class='tt-from tt-from-reg'>"+fromClub+"</span><span class='tt-arrow-icon tt-arrow-reg'>&#8594;</span><span class='tt-to tt-to-reg'>"+club+"</span></div>";
+    html+="<div class='tt-date'>"+date+"</div>";
+    html+="<div class='tt-row'><span>Type</span><span>"+type.charAt(0).toUpperCase()+type.slice(1)+"</span></div>";
+    html+="<div class='tt-row'><span>Transfer Fee</span><span>"+fee+"</span></div>";
+    html+="<div class='tt-row'><span>Salary</span><span style='color:#e8c96e'>"+salary+"</span></div>";
+    html+="<div class='tt-row'><span>Contract Length</span><span>"+contract+"</span></div>";
+  }
+  inner.innerHTML=html;
+  tip.classList.add("visible");
+  moveTT(e);
+}
+function showPrimeTT(e,club,startYr,endYr){
+  var tip=document.getElementById("graph-tooltip");
+  var inner=document.getElementById("tt-inner");
+  tip.classList.remove("record-tt");
+  var html="";
+  html+="<div class='tt-latest-label'>PRIME YEARS</div>";
+  html+="<div class='tt-club' style='color:#4d7fff'>"+club+"</div>";
+  html+="<div class='tt-date'>"+startYr+" — "+endYr+"</div>";
+  html+="<div class='tt-row'><span>Years at Club</span><span>"+(endYr-startYr)+"</span></div>";
+  inner.innerHTML=html;
+  tip.classList.add("visible");
+  moveTT(e);
+}
+
+function moveTT(e){
+  var tip=document.getElementById("graph-tooltip");
+  var cx=e.clientX||0,cy=e.clientY||0;
+  var tw=tip.offsetWidth||270,th=tip.offsetHeight||160;
+  var x=cx+18,y=cy-12;
+  if(x+tw>window.innerWidth-8)x=cx-tw-18;
+  if(y+th>window.innerHeight-8)y=window.innerHeight-th-8;
+  tip.style.left=x+"px";tip.style.top=y+"px";
+}
+function hideTT(){document.getElementById("graph-tooltip").classList.remove("visible","record-tt");}
+
+function openPlayer(slug){
+  var p=null;for(var i=0;i<players.length;i++){if(players[i].slug===slug){p=players[i];break;}}
+  if(!p)return;
+  var ty=p.moves.reduce(function(s,m){var n=m.contract.match(/(\d+(?:\.\d+)?)/);return s+(n?parseFloat(n[1]):0);},0);
+  var metas="<div class='meta-item'><span class='meta-label'>Nationality</span><span class='meta-value'>"+p.nationality+"</span></div><div class='meta-item'><span class='meta-label'>Position</span><span class='meta-value'>"+p.position+"</span></div><div class='meta-item'><span class='meta-label'>Peak Club</span><span class='meta-value'>"+p.prime.club+"</span></div><div class='meta-item'><span class='meta-label'>Peak Years</span><span class='meta-value'>"+p.prime.start+"&#8211;"+p.prime.end+"</span></div><div class='meta-item'><span class='meta-label'>Status</span><span class='meta-value' style='color:"+(p.status==="active"?"#4dffaa":"var(--text-dim)")+"'>"+(p.status==="active"?"Active":"Retired")+"</span></div>";
+  document.getElementById("player-modal-content").innerHTML=
+    "<button class='modal-back' onclick='closePlayer()'>&#8592; All Players</button>"+
+    "<div class='player-header'><div><div class='player-header-name'>"+p.name+"</div><div class='player-header-meta'>"+metas+"</div><div class='player-legend-note'>"+p.legendNote+"</div></div>"+
+    "<div class='player-header-stats'><div class='header-stat'><div class='header-stat-num'>"+p.moves.length+"</div><div class='header-stat-label'>Post-Prime Moves</div></div><div class='header-stat'><div class='header-stat-num'>"+Math.round(ty*10)/10+"</div><div class='header-stat-label'>Years Post-Prime</div></div></div></div>"+
+    "<div class='graph-section'><div class='section-label'>// Career Timeline Graph</div>"+
+    "<div class='graph-legend'><div class='legend-item'><div class='legend-dot prime'></div>Prime years</div><div class='legend-item'><div class='legend-dot move'></div>Post-prime move &#8212; hover dot to inspect</div><div class='legend-item'><div class='legend-dot' style='background:#f5a623;box-shadow:0 0 7px rgba(245,166,35,0.9)'></div>Record Breaking Transfer &#8212; hover dot or line</div></div>"+
+    "<div class='graph-scroll'>"+buildGraph(p)+"</div></div>"+
+    "<div class='summary-section'><div class='section-label'>// Post-Prime Summary</div>"+
+    "<div class='summary-grid'><div class='summary-item'><div class='summary-num'>"+p.moves.length+"</div><div class='summary-label'>Clubs After Prime</div></div>"+
+    "<div class='summary-item'><div class='summary-num'>"+Math.round(ty*10)/10+"y</div><div class='summary-label'>Total Years Post-Prime</div></div>"+
+    "<div class='summary-item'><div class='summary-num' style='color:"+(p.status==="active"?"#4dffaa":"var(--text-muted)")+"'>"+(p.status==="active"?"Active":"Retired")+"</div><div class='summary-label'>Current Status</div></div></div></div>";
+  document.getElementById("player-overlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closePlayer(){hideTT();document.getElementById("player-overlay").classList.remove("open");document.body.style.overflow="";}
+document.getElementById("player-overlay").addEventListener("click",function(e){if(e.target===this)closePlayer();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closePlayer();});
+computeStats();renderTable();
+</script>
+</body>
+</html>
